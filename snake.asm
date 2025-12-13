@@ -4,6 +4,8 @@ INCLUDE Irvine32.inc
 
 MapWidth EQU 30
 MapHeight EQU 20
+MapOffsetX EQU 10
+MapOffsetY EQU 1
 SnakeMaxLen EQU 100
 
 KEY_UP    EQU 48h
@@ -109,10 +111,12 @@ DrawFullSnake PROC
     movzx eax, foodX
     inc eax
     add eax, eax
+    add eax, MapOffsetX
     mov dl, al
     
     mov dh, foodY
     inc dh
+    add dh, MapOffsetY
     call Gotoxy
     mov al, symFood
     call WriteChar
@@ -127,10 +131,12 @@ DrawLoop:
     movzx eax, snakeX[esi]
     inc eax
     add eax, eax
+    add eax, MapOffsetX
     mov dl, al
     
     mov dh, snakeY[esi]
     inc dh
+    add dh, MapOffsetY
     call Gotoxy
     
     cmp esi, 0
@@ -172,8 +178,8 @@ DrawWalls PROC
     mov eax, brown
     call SetTextColor
     
-    mov dl, 0
-    mov dh, 0
+    mov dl, MapOffsetX
+    mov dh, MapOffsetY
     call Gotoxy
     mov ecx, MapWidth + 2
 L1: mov al, symWall
@@ -183,14 +189,14 @@ L1: mov al, symWall
     loop L1
     
     mov ecx, MapHeight
-    mov dh, 1
+    mov dh, MapOffsetY + 1
 L2:
-    mov dl, 0
+    mov dl, MapOffsetX
     call Gotoxy
     mov al, symWall
     call WriteChar
     
-    mov dl, (MapWidth + 1) * 2
+    mov dl, (MapWidth + 1) * 2 + MapOffsetX
     call Gotoxy
     mov al, symWall
     call WriteChar
@@ -198,8 +204,8 @@ L2:
     inc dh
     loop L2
     
-    mov dl, 0
-    mov dh, MapHeight + 1
+    mov dl, MapOffsetX
+    mov dh, MapHeight + 1 + MapOffsetY
     call Gotoxy
     mov ecx, MapWidth + 2
 L3: mov al, symWall
@@ -221,10 +227,12 @@ DrawObsLoop:
     movzx eax, obstaclesX[esi]
     inc eax
     add eax, eax
+    add eax, MapOffsetX
     mov dl, al
     
     mov dh, obstaclesY[esi]
     inc dh
+    add dh, MapOffsetY
     call Gotoxy
     mov al, symObstacle
     call WriteChar
@@ -245,10 +253,12 @@ DrawGame PROC
     movzx eax, lastTailX
     inc eax
     add eax, eax
+    add eax, MapOffsetX
     mov dl, al
     
     mov dh, lastTailY
     inc dh
+    add dh, MapOffsetY
     call Gotoxy
     mov al, ' '
     call WriteChar
@@ -260,10 +270,12 @@ SkipErase:
     movzx eax, snakeX[0]
     inc eax
     add eax, eax
+    add eax, MapOffsetX
     mov dl, al
     
     mov dh, snakeY[0]
     inc dh
+    add dh, MapOffsetY
     call Gotoxy
     mov al, symHead
     call WriteChar
@@ -271,10 +283,12 @@ SkipErase:
     movzx eax, snakeX[1]
     inc eax
     add eax, eax
+    add eax, MapOffsetX
     mov dl, al
     
     mov dh, snakeY[1]
     inc dh
+    add dh, MapOffsetY
     call Gotoxy
     mov al, symBody
     call WriteChar
@@ -287,10 +301,12 @@ SkipErase:
     movzx eax, foodX
     inc eax
     add eax, eax
+    add eax, MapOffsetX
     mov dl, al
     
     mov dh, foodY
     inc dh
+    add dh, MapOffsetY
     call Gotoxy
     mov al, symFood
     call WriteChar
@@ -299,8 +315,8 @@ SkipErase:
     
     mov eax, yellow
     call SetTextColor
-    mov dl, 2
-    mov dh, MapHeight + 3
+    mov dl, 35
+    mov dh, MapHeight + 3 + MapOffsetY
     call Gotoxy
     mov edx, OFFSET strScore
     call WriteString
@@ -516,28 +532,28 @@ GenerateFood ENDP
 
 ShowGameOver PROC
     call ClrScr
-    mov eax, lightRed
+    mov eax, lightRed + (white * 16)
     call SetTextColor
     mov dh, 8
-    mov dl, 27
+    mov dl, 35
     call Gotoxy
     mov edx, OFFSET strGameOver
     call WriteString
     
-    mov eax, yellow
+    mov eax, yellow + (black * 16)
     call SetTextColor
     mov dh, 10
-    mov dl, 27
+    mov dl, 35
     call Gotoxy
     mov edx, OFFSET strScore
     call WriteString
     mov eax, score
     call WriteDec
     
-    mov eax, white
+    mov eax, white + (black * 16)
     call SetTextColor
     mov dh, 12
-    mov dl, 25
+    mov dl, 30
     call Gotoxy
     mov edx, OFFSET strPlayAgain
     call WriteString
@@ -548,20 +564,28 @@ ShowGameOver ENDP
 
 MainMenu PROC
     call ClrScr
+    
+    ; Draw a box or just center things nicely
+    mov eax, yellow + (blue * 16)
+    call SetTextColor
+    
     mov dh, 8
-    mov dl, 25
+    mov dl, 31
     call Gotoxy
     mov edx, OFFSET strMenuTitle
     call WriteString
     
-    mov dh, 10
-    mov dl, 25
+    mov eax, white + (black * 16)
+    call SetTextColor
+    
+    mov dh, 11
+    mov dl, 33
     call Gotoxy
     mov edx, OFFSET strMenuOpt1
     call WriteString
     
-    mov dh, 11
-    mov dl, 25
+    mov dh, 13
+    mov dl, 33
     call Gotoxy
     mov edx, OFFSET strMenuOpt2
     call WriteString
@@ -572,26 +596,33 @@ MainMenu ENDP
 
 DifficultyMenu PROC
     call ClrScr
+    
+    mov eax, yellow + (blue * 16)
+    call SetTextColor
+    
     mov dh, 8
-    mov dl, 20
+    mov dl, 27
     call Gotoxy
     mov edx, OFFSET strDiffTitle
     call WriteString
     
-    mov dh, 10
-    mov dl, 20
+    mov eax, white + (black * 16)
+    call SetTextColor
+    
+    mov dh, 11
+    mov dl, 26
     call Gotoxy
     mov edx, OFFSET strDiffOpt1
     call WriteString
     
-    mov dh, 11
-    mov dl, 20
+    mov dh, 13
+    mov dl, 23
     call Gotoxy
     mov edx, OFFSET strDiffOpt2
     call WriteString
     
-    mov dh, 12
-    mov dl, 20
+    mov dh, 15
+    mov dl, 25
     call Gotoxy
     mov edx, OFFSET strDiffOpt3
     call WriteString
