@@ -64,29 +64,42 @@ KEY_RIGHT EQU 4Dh
     obstaclesY      BYTE MAX_OBSTACLES DUP(?)
     obstacleCount   DWORD 0
 
+; Prototypes
+DrawFullSnake PROTO
+InitGame PROTO
+DrawWalls PROTO
+DrawGame PROTO
+Input PROTO
+Logic PROTO
+GenerateFood PROTO
+ShowGameOver PROTO
+MainMenu PROTO
+DifficultyMenu PROTO
+GenerateObstacles PROTO
+
 .code
 main PROC
     call Randomize
 
 MenuLoop:
-    call MainMenu
+    INVOKE MainMenu
     cmp al, '2'
     je ExitGame
     
-    call DifficultyMenu
-    call InitGame
-    call GenerateObstacles
+    INVOKE DifficultyMenu
+    INVOKE InitGame
+    INVOKE GenerateObstacles
     
-    call DrawWalls
-    call DrawFullSnake
+    INVOKE DrawWalls
+    INVOKE DrawFullSnake
 
 GameLoop:
     cmp gameOver, 1
     je EndGameLabel
     
-    call Input
-    call Logic
-    call DrawGame
+    INVOKE Input
+    INVOKE Logic
+    INVOKE DrawGame
     
     mov eax, gameSpeed
     call Delay
@@ -94,7 +107,7 @@ GameLoop:
     jmp GameLoop
 
 EndGameLabel:
-    call ShowGameOver
+    INVOKE ShowGameOver
     cmp al, 'y'
     je MenuLoop
     cmp al, 'Y'
@@ -104,7 +117,7 @@ ExitGame:
     exit
 main ENDP
 
-DrawFullSnake PROC
+DrawFullSnake PROC USES eax ecx edx esi
     mov eax, green
     call SetTextColor
     
@@ -168,11 +181,11 @@ InitGame PROC
     mov score, 0
     mov gameOver, 0
     
-    call GenerateFood
+    INVOKE GenerateFood
     ret
 InitGame ENDP
 
-DrawWalls PROC
+DrawWalls PROC USES eax ecx edx esi
     call ClrScr
     
     mov eax, brown
@@ -246,7 +259,7 @@ SkipObsDraw:
     ret
 DrawWalls ENDP
 
-DrawGame PROC
+DrawGame PROC USES eax edx
     cmp didGrow, 1
     je SkipErase
     
@@ -328,7 +341,7 @@ SkipErase:
     ret
 DrawGame ENDP
 
-Input PROC
+Input PROC USES eax
     call ReadKey
     jz NoKey
     
@@ -384,7 +397,7 @@ NoKey:
     ret
 Input ENDP
 
-Logic PROC
+Logic PROC USES eax ecx esi
     mov didGrow, 0
 
     mov esi, snakeLen
@@ -476,7 +489,7 @@ NextCheck:
     mov al, lastTailY
     mov snakeY[esi], al
     
-    call GenerateFood
+    INVOKE GenerateFood
     jmp FinishLogic
 
 Die:
@@ -486,7 +499,7 @@ FinishLogic:
     ret
 Logic ENDP
 
-GenerateFood PROC
+GenerateFood PROC USES eax ecx esi
 RetryGen:
     mov eax, MapWidth
     call RandomRange
@@ -594,7 +607,7 @@ MainMenu PROC
     ret
 MainMenu ENDP
 
-DifficultyMenu PROC
+DifficultyMenu PROC USES eax edx
     call ClrScr
     
     mov eax, yellow + (blue * 16)
@@ -651,7 +664,7 @@ SetHard:
     ret
 DifficultyMenu ENDP
 
-GenerateObstacles PROC
+GenerateObstacles PROC USES eax ecx esi
     cmp obstacleCount, 0
     je NoObstacles
     
