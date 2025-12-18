@@ -37,6 +37,15 @@ KEY_RIGHT EQU 4Dh
     strWelcomeTitle BYTE "=== SNAKE GAME ===",0
     strWelcomeInstr BYTE "Use Arrow Keys or WASD to move",0
     
+    ; ASCII Art Title
+    strTitle1   BYTE "   _____ _   _          _  ________ ",0
+    strTitle2   BYTE "  / ____| \\ | |   /\\   | |/ /  ____|",0
+    strTitle3   BYTE " | (___ |  \\| |  /  \\  | ' /| |__   ",0
+    strTitle4   BYTE "  \\___ \\|    | / /\\ \\ |  < |  __|  ",0
+    strTitle5   BYTE "  ____) | |\\  |/ ____ \\| . \\| |____ ",0
+    strTitle6   BYTE " |_____/|_| \\_/_/    \\_\\_|\\_\\______|",0
+
+    
     ; Menu Strings
     strMenuTitle    BYTE "=== MAIN MENU ===",0
     strMenuOpt1     BYTE "1. Start Game",0
@@ -578,7 +587,17 @@ ShowGameOver ENDP
 MainMenu PROC
     call ClrScr
     
-    ; Draw a box or just center things nicely
+    ; Draw Snake Game Title
+    mov eax, lightGreen + (black * 16)
+    call SetTextColor
+    
+    mov dh, 5
+    mov dl, 31
+    call Gotoxy
+    mov edx, OFFSET strWelcomeTitle
+    call WriteString
+    
+    ; Draw Main Menu Title
     mov eax, yellow + (blue * 16)
     call SetTextColor
     
